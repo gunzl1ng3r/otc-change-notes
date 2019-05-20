@@ -10,7 +10,8 @@ import (
 )
 
 func main() {
-	var ChangeNotes map[string]map[string]string
+	var ChangeNotes map[string][]string
+	ChangeNotes = make(map[string][]string)
 
 	resp, err := http.Get("https://docs.otc.t-systems.com/en-us/usermanual/obs/en-us_topic_0071293550.html")
 
@@ -47,6 +48,8 @@ func main() {
 				ReadingChangeNotes = false
 				break
 			}
+		} else {
+			continue
 		}
 
 		// fmt.Println("InsideTableBody is set to:", InsideTableBody)
@@ -54,18 +57,33 @@ func main() {
 			re := regexp.MustCompile(`>[0-9]{4}-[0-9]{2}-[0-9]{2}<`)
 			if len(re.Find([]byte(element))) > 0 {
 				currentKey = (stripHTML(element))
-				ChangeNotes[currentKey] = make(map[string]string)
+				// ChangeNotes[currentKey] = make(map[string]string)
 				// fmt.Println(index, element)
 				// output := stripHTML(element)
 				// fmt.Println(index, output)
 			} else {
-				ChangeNotes[currentKey][stripHTML(element)] = ""
+				if len(currentKey) > 0 && len(stripHTML(element)) > 0 {
+					if strings.Contains(element, "<li id=") {
+						ChangeNotes[currentKey] = append(ChangeNotes[currentKey], "_"+stripHTML(element))
+					} else {
+						// fmt.Println("currentKey is set to:", currentKey, "and value found is:", stripHTML(element))
+						ChangeNotes[currentKey] = append(ChangeNotes[currentKey], stripHTML(element))
+					}
+				}
 			}
 		}
 	}
 	// fmt.Println(string(body))
 	for key, value := range ChangeNotes {
-		fmt.Println("Key:", key, "Value:", value)
+		// fmt.Println("Key:", key, "Value:", value)
+		fmt.Println(key)
+		for i := range value {
+			if string([]rune(value[i])[0]) == "_" {
+				fmt.Println("  -", strings.TrimPrefix(value[i], "_"))
+			} else {
+				fmt.Println("-", value[i])
+			}
+		}
 	}
 }
 
