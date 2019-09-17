@@ -9,12 +9,12 @@ import (
 	"strings"
 )
 
-func parseChangeHistory() {
+func parseChangeHistory(url string) {
 
 	var ChangeNotes map[string][]string
 	ChangeNotes = make(map[string][]string)
 
-	resp, err := http.Get("https://docs.otc.t-systems.com/en-us/usermanual/obs/en-us_topic_0071293550.html")
+	resp, err := http.Get(url)
 
 	if err != nil {
 		log.Println("ERROR - Message is", err)
@@ -77,12 +77,12 @@ func parseChangeHistory() {
 	// fmt.Println(string(body))
 	for key, value := range ChangeNotes {
 		// fmt.Println("Key:", key, "Value:", value)
-		fmt.Println(key)
+		fmt.Println(" ", key)
 		for i := range value {
 			if string([]rune(value[i])[0]) == "_" {
-				fmt.Println("  -", strings.TrimPrefix(value[i], "_"))
+				fmt.Println("    -", strings.TrimPrefix(value[i], "_"))
 			} else {
-				fmt.Println("-", value[i])
+				fmt.Println("  -", value[i])
 			}
 		}
 	}
